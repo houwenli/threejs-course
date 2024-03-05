@@ -19,9 +19,9 @@ watchEffect(() => {
 
 onMounted(() => {
   
-  const gui = new GUI()
-
-  document.getElementById('gui-wraper').appendChild(gui.domElement)
+  const gui = new GUI({
+    container: document.getElementById('gui-wraper')
+  })
 
   gui.domElement.style.right = '0px'
   gui.domElement.style.top = '100px'

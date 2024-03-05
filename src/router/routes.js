@@ -77,6 +77,36 @@ const routes = [
         name: 'vertices',
         title: '顶点位置'
       },
+      {
+        path: '/bufferGeometry',
+        component: () => import('../views/bufferGeometry/index.vue'),
+        name: 'bufferGeometry',
+        title: '几何体基类'
+      },
+      {
+        path: '/object3d',
+        component: () => import('../views/object3d/index.vue'),
+        name: 'object3d',
+        title: '模型基类'
+      },
+      {
+        path: '/cloneAndCopy',
+        component: () => import('../views/cloneAndCopy/index.vue'),
+        name: 'cloneAndCopy',
+        title: 'clone&copy'
+      },
+      {
+        path: '/group',
+        component: () => import('../views/group/index.vue'),
+        name: 'group',
+        title: '层级结构'
+      },
+      {
+        path: '/textureLoader',
+        component: () => import('../views/textureLoader/index.vue'),
+        name: 'textureLoader',
+        title: '纹理贴图'
+      },
     ]
   },
  
