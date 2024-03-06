@@ -107,6 +107,12 @@ const routes = [
         name: 'textureLoader',
         title: '纹理贴图'
       },
+      {
+        path: '/gltf',
+        component: () => import('../views/gltf/index.vue'),
+        name: 'gltf',
+        title: '3d模型'
+      },
     ]
   },
  
