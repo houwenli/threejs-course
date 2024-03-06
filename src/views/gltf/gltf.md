@@ -31,3 +31,45 @@ three.js加载gltf模型的时候，可能会遇到three.js渲染结果颜色偏
 ```js
 renderer.outputEncoding = THREE.sRGBEncoding;
 ```
+
+## 递归遍历方法.traverse()
+
+```js
+// 递归遍历所有模型节点批量修改材质
+gltf.scene.traverse(function(obj) {
+  if (obj.isMesh) {//判断是否是网格模型
+      console.log('模型节点',obj);
+      console.log('模型节点名字',obj.name);
+  }
+});
+```
+
+## 查看gltf默认的材质
+
+threejs解析gltf模型默认材质一般是MeshStandardMaterial或MeshPhysicalMaterial，相比较其它网格材质，这两个材质属于PBR物理材质，可以提供更加真实的材质效果
+
+## 批量修改gltf所有Mesh的材质
+
+```js
+gltf.scene.traverse(function(obj) {
+    if (obj.isMesh) {
+        // 重新设置材质
+        obj.material = new THREE.MeshLambertMaterial({
+            color:0xffffff,
+        });
+    }
+});
+```
+
+## 材质共享问题
+
+美术通过三维建模软件，比如Blender绘制好一个三维场景以后，一些外观一样的Mesh，可能会共享一个材质对象。
+
+```js
+gltf.scene.getObjectByName("小区房子").traverse(function (obj) {
+    if (obj.isMesh) {
+        // .material.clone()返回一个新材质对象，和原来一样，重新赋值给.material属性
+        obj.material = obj.material.clone();
+    }
+});
+```

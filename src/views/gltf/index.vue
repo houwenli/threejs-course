@@ -136,7 +136,6 @@ onMounted(() => {
 
     renderer.render( scene, camera );
 
-    console.log(controls.target)
 
   }
   animate()

@@ -19,6 +19,20 @@ loader.load( new URL('./collision-world.glb', import.meta.url).href, function ( 
   boundingBox.getSize( size );
   // Width: 34.357852935791016, Height: 8.60006332397461, Depth: 34.35785484313965
   console.log( "Width: " + size.x + ", Height: " + size.y + ", Depth: " + size.z );
+
+  gltf.scene.traverse(function(obj) {
+    if (obj.isMesh) {//判断是否是网格模型
+      console.log('模型节点',obj);
+      console.log('模型节点名字',obj.name);
+      console.log('材质', obj.material)
+      
+      // obj.material = obj.material.clone();
+
+      obj.material = new THREE.MeshLambertMaterial({
+        color:0xffffff,
+      });
+    }
+});
 })
 
 
