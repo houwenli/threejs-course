@@ -11,6 +11,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import points from './point';
 import line from './line';
+import triangle from './triangle';
+import rectangle from './rectangle'
 
 const canvas = ref(null);
 
@@ -20,15 +22,23 @@ onMounted(() => {
    */
   const scene = new THREE.Scene()
 
-  scene.add(points)
+  // 点
+  // scene.add(points)
 
-  scene.add(line)
+  // 线
+  // scene.add(line)
+
+  // 三角形
+  // scene.add(triangle)
+
+  // 矩形
+  scene.add(rectangle)
   
   
 
   // 添加辅助坐标系
   const axesHelper = new THREE.AxesHelper(200);
-  // scene.add( axesHelper );
+  scene.add( axesHelper );
 
   // 添加点光源
   const light = new THREE.PointLight( 0xffffff, 1, 10000, 0 );
