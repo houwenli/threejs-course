@@ -1,10 +1,11 @@
 <template>
+  <div class="click" @click="saveFile">下载</div>
   <div class="canvas" ref="canvas"></div>
 </template>
 
 <script setup>
 import * as THREE from 'three';
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 // 引入stats性能监视器
@@ -12,7 +13,18 @@ import Stats from 'three/examples/jsm/libs/stats.module.js'
 
 const canvas = ref(null);
 
-import rectangle from './rectangle'
+let renderer = reactive({});
+
+function saveFile() {
+  // 创建一个超链接元素，用来下载保存数据的文件
+  const link = document.createElement('a');
+  console.log(1111, renderer)
+  const canvasObj = renderer.domElement; //获取Obj对象
+  // 通过超链接herf属性，设置要保存到文件中的数据
+  link.href = canvasObj.toDataURL("image/png")
+  link.download = 'threejs.png';//下载文件名
+  link.click();//js代码触发超链接元素a的鼠标点击事件，开始下载文件到本地
+}
 
 onMounted(() => {
   /**
@@ -20,91 +32,56 @@ onMounted(() => {
    */
   const scene = new THREE.Scene()
 
-  const geometry = new THREE.PlaneGeometry(200, 100); 
-  // const geometry = new THREE.BoxGeometry(100, 100, 100)
-  // const geometry = new THREE.SphereGeometry(100)
-  // 纹理贴图加载器TextureLoader
-  const texLoader = new THREE.TextureLoader();
+  // 往场景中添加物品
+  // 添加一个长方体
+  const geometry = new THREE.BoxGeometry( 100, 100, 100 );
 
-  // const texture = texLoader.load(new URL('./earth.jpg', import.meta.url).href);
-  // const texture = texLoader.load(new URL('./test.png', import.meta.url).href);
-  const texture = texLoader.load(new URL('./cropped.jpg', import.meta.url).href);
+  // 此时需要给长方体添加一个外部材质
+  // 不受光照影响
+  // const material = new THREE.MeshBasicMaterial( {
+  //   color: 0x0000ff,
+  //   transparent: true, // 是否开启透明
+  //   opacity: 0.5, // 透明度 
+  // } );
 
-  // console.log(texture)
-  const material = new THREE.MeshBasicMaterial({
-    // 设置纹理贴图：Texture对象作为材质map属性的属性值
-    map: texture, // map表示材质的颜色贴图属性
-    side: THREE.both
-  });
+  const material = new THREE.MeshLambertMaterial( {
+    color: 0x0000ff,
+    // transparent: true, // 是否开启透明
+    // opacity: 0.5, // 透明度 
+    // side: THREE.DoubleSide
+  } );
 
+  // threejs中的物品都是通过网格表示的
+  // mesh需要形状和外观
   const mesh = new THREE.Mesh(geometry, material)
+  // 可以设置物体的位置
+  mesh.position.set(0, 0, 0)
+
+  // 在场景中添加物品
   // scene.add( mesh );
 
-  scene.add(rectangle)
 
-
-  const planeGeometry = new THREE.PlaneGeometry(100, 100);
-  const uvs = new Float32Array([
-    0, 1,
-    0.5, 1,
-    0, 0,
-    0.5, 0
-  ]);
-  // 设置几何体attributes属性的位置normal属性
-  planeGeometry.attributes.uv = new THREE.BufferAttribute(uvs, 2); //2个为一组,表示一个顶点的纹理坐标
-  const planeMesh = new THREE.Mesh(planeGeometry, material)
-  planeMesh.position.set(250, 0, 0)
-  scene.add( planeMesh );
-
-  // 圆形平面
-  const circleGeometry = new THREE.CircleGeometry(50);
-  const circleMesh = new THREE.Mesh(circleGeometry, material)
-  circleMesh.position.set(0, 0, 100)
-  scene.add( circleMesh );
-
- 
-  const tileGeometry = new THREE.PlaneGeometry(2000, 2000);
-  // .load()方法加载图像，返回一个纹理对象Texture
-  const tileTexture = texLoader.load(new URL('./tile.png', import.meta.url).href);
-  // 设置阵列模式
-  tileTexture.wrapS = THREE.RepeatWrapping;
-  tileTexture.wrapT = THREE.RepeatWrapping;
-  tileTexture.repeat.set(12,12)
-  const tileMaterial = new THREE.MeshLambertMaterial({
-      // 设置纹理贴图：Texture对象作为材质map属性的属性值
-      map: tileTexture,//map表示材质的颜色贴图属性
-      // side: THREE.DoubleSide
+  // 两个矩形平面Mesh重合，产生闪烁
+  // 闪烁原因：两个矩形面位置重合，GPU无法分清谁在前谁在后
+  const geometry1 = new THREE.PlaneGeometry(250, 250);
+  const material1 = new THREE.MeshLambertMaterial({
+      color: 0x00ffff,
+      side: THREE.DoubleSide,
   });
-  const tileMesh = new THREE.Mesh(tileGeometry, tileMaterial);
-
-  tileMesh.rotateX(-Math.PI/2)
-
-  // scene.add( tileMesh );
+  const mesh1 = new THREE.Mesh(geometry1, material1);
+  // mesh1.position.z = 0.1;
+  scene.add( mesh1 );
 
 
-  // 添加地面辅助观察
-  const gridHelper = new THREE.GridHelper(500, 25, 0x0000ff, 0x00ff00)
-  scene.add( gridHelper );
-
-  const pngGeometry = new THREE.PlaneGeometry(1000, 132);
-  // .load()方法加载图像，返回一个纹理对象Texture
-  const pngTexture = texLoader.setPath(new URL('./', import.meta.url).pathname).load('/png.png');
-  // const pngTexture = texLoader.load('src/views/textureLoader/png.png');
-  // pngTexture.offset.x = 0.4
-  // pngTexture.offset.y = 0.1
-  pngTexture.wrapS = THREE.RepeatWrapping;
-  pngTexture.wrapT = THREE.RepeatWrapping;
-  pngTexture.repeat.set(10, 1)
-  const pngMaterial = new THREE.MeshBasicMaterial({
-      // 设置纹理贴图：Texture对象作为材质map属性的属性值
-      map: pngTexture,//map表示材质的颜色贴图属性
-      // side: THREE.DoubleSide
-      transparent: true
+  const geometry2 = new THREE.PlaneGeometry(300, 300); 
+  const material2 = new THREE.MeshLambertMaterial({
+      color: 0xff6666,
+      side: THREE.DoubleSide,
   });
-  const pngMesh = new THREE.Mesh(pngGeometry, pngMaterial);
-  pngMesh.rotateX(-Math.PI/2)
-  scene.add( pngMesh );
+  const mesh2 = new THREE.Mesh(geometry2, material2);
+  scene.add( mesh2 );
 
+  
 
   // 添加辅助坐标系
   const axesHelper = new THREE.AxesHelper(200);
@@ -112,7 +89,7 @@ onMounted(() => {
 
 
   // 添加点光源
-  const light = new THREE.PointLight( 0xffffff, 1, 10000, 0 );
+  const light = new THREE.PointLight( 0x0000ff, 1, 10000, 0 );
   light.position.set( 0, 500, 800);
   scene.add( light );
 
@@ -128,7 +105,7 @@ onMounted(() => {
   const camera = new THREE.PerspectiveCamera( 45, canvas.value.clientWidth / canvas.value.clientHeight, 1, 10000 );
   // const camera = new THREE.PerspectiveCamera( 90, canvas.value.clientWidth / canvas.value.clientHeight, 1, 10000 );
   // 设置相机的位置
-  camera.position.set(500, 500, 500)
+  camera.position.set(300, 300, 300)
   // 设置相机拍照的视线方向
   // camera.lookAt(1000, 0, 1000)
   // 看向某一个物体的位置，指向某个网格模型
@@ -142,14 +119,17 @@ onMounted(() => {
    */
 
   //  创建WebGL渲染器
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true
+  renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    preserveDrawingBuffer:true,
   });
+  console.log(renderer)
   // renderer.antialias = true 
   renderer.setSize(canvas.value.clientWidth, canvas.value.clientHeight)
   renderer.render(scene, camera)
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setClearColor(0x111111, 0.5)
+  renderer.setClearAlpha(0)
 
   // 最后把渲染结果给渲染到页面上
   canvas.value.appendChild(renderer.domElement)
@@ -177,10 +157,11 @@ onMounted(() => {
   function animate() {
     stats.update()
 
-    pngTexture.offset.x += 0.01
-
     // const spt = clock.getDelta() * 1000
     // console.log('spt', spt)
+
+    // 自动旋转
+    // mesh.rotateY(0.01)
 
     requestAnimationFrame( animate );
 
@@ -219,5 +200,13 @@ onMounted(() => {
 .canvas {
   width: 100%;
   height: 100%;
+  position: relative;
+}
+
+.click {
+  position: absolute;
+  z-index: 10;
+  top: 100px;
+  left: 0;
 }
 </style>

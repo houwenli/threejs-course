@@ -23,14 +23,14 @@ import Bar from './header.vue'
 }
 
 .el-slide {
-  width: 128px;
+  width: 160px;
   height: 100vh;
   background-color: darkslategrey;
   color: #ffffff
 }
  
 .el-main {
-  width: calc(100% - 128px);
+  width: calc(100% - 160px);
   background-color: #E9EEF3;
   transform: translateZ(0);
 }

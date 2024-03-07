@@ -9,8 +9,8 @@ const loader = new GLTFLoader();
 const model = new THREE.Group()
 
 loader.load( new URL('./collision-world.glb', import.meta.url).href, function ( gltf ) {
-  console.log('控制台查看加载gltf文件返回的对象结构',gltf);
-  console.log('gltf对象场景属性',gltf.scene);
+  // console.log('控制台查看加载gltf文件返回的对象结构',gltf);
+  // console.log('gltf对象场景属性',gltf.scene);
   // 返回的场景对象gltf.scene插入到threejs场景中
   model.add( gltf.scene );
 
@@ -22,9 +22,9 @@ loader.load( new URL('./collision-world.glb', import.meta.url).href, function ( 
 
   gltf.scene.traverse(function(obj) {
     if (obj.isMesh) {//判断是否是网格模型
-      console.log('模型节点',obj);
-      console.log('模型节点名字',obj.name);
-      console.log('材质', obj.material)
+      // console.log('模型节点',obj);
+      // console.log('模型节点名字',obj.name);
+      // console.log('材质', obj.material)
       
       // obj.material = obj.material.clone();
 
@@ -32,10 +32,7 @@ loader.load( new URL('./collision-world.glb', import.meta.url).href, function ( 
         color:0xffffff,
       });
     }
-  });
-}, function(xhr) {
-  const percent = xhr.loaded / xhr.total;
-  console.log(`process is: ${percent}`)
+});
 })
 
 

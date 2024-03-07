@@ -40,5 +40,10 @@
 }
 .btn {
   width: 100%;
+  cursor: pointer;
+}
+
+.actived {
+  background-color: cadetblue
 }
 </style>

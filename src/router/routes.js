@@ -113,6 +113,30 @@ const routes = [
         name: 'gltf',
         title: '3d模型'
       },
+      {
+        path: '/PRB',
+        component: () => import('../views/prb/index.vue'),
+        name: 'PRB',
+        title: 'PRB标准材质'
+      },
+      {
+        path: '/canvas',
+        component: () => import('../views/canvas/index.vue'),
+        name: 'canvas',
+        title: '画布'
+      },
+      {
+        path: '/geometrydiy',
+        component: () => import('../views/geometrydiy/index.vue'),
+        name: 'geometrydiy',
+        title: '生成曲线，几何体'
+      },
+      {
+        path: '/effectComposer',
+        component: () => import('../views/effectComposer/index.vue'),
+        name: 'effectComposer',
+        title: '后处理'
+      },
     ]
   },
  
