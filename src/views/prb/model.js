@@ -31,6 +31,8 @@ loader.load( new URL('./collision-world.glb', import.meta.url).href, function ( 
       obj.material = new THREE.MeshLambertMaterial({
         color:0xffffff,
       });
+      obj.castShadow = true
+      obj.receiveShadow = true;
     }
 });
 })

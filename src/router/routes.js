@@ -137,6 +137,18 @@ const routes = [
         name: 'effectComposer',
         title: '后处理'
       },
+      {
+        path: '/sprite',
+        component: () => import('../views/sprite/index.vue'),
+        name: 'sprite',
+        title: '精灵模型'
+      },
+      {
+        path: '/ray',
+        component: () => import('../views/ray/index.vue'),
+        name: 'ray',
+        title: '射线'
+      },
     ]
   },
  

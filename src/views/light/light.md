@@ -101,5 +101,26 @@ const directionalLightHelper = new THREE.DirectionalLightHelper( directionalLigh
 scene.add( directionalLightHelper );
 ```
 
+#### 聚光源SpotLight
+
+```js
+const spotLight = new THREE.SpotLight(0xffffff,1.0);
+spotLight.position.set(-100, 100, -100)
+spotLight.target = mesh
+spotLight.angle = Math.PI / 6;
+scene.add(spotLight);//光源添加到场景中
+// 聚光源辅助对象，可视化聚光源
+const spotLightHelper = new THREE.SpotLightHelper(spotLight,0xffffff)
+scene.add(spotLightHelper);
+```
+
+### 阴影效果
+以平行光为例，其他光源类似设置，平行光DirectionalLight阴影计算最少设置
+
+- castShadow设置产生阴影的模型对象
+- castShadow设置产生阴影的光源对象
+- receiveShadow设置接收阴影效果的模型
+- shadowMap.enabledWebGl渲染器允许阴影渲染
+- shadow.camera设置光源阴影渲染范围
 
 

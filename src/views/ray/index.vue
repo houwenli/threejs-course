@@ -9,7 +9,6 @@ import { ref, onMounted } from 'vue'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 // 引入stats性能监视器
 import Stats from 'three/examples/jsm/libs/stats.module.js'
-import model from './model';
 
 const canvas = ref(null);
 
@@ -18,88 +17,73 @@ onMounted(() => {
    * 创建虚拟的3D场景
    */
   const scene = new THREE.Scene()
-  scene.background = new THREE.Color( 0x88ccee );
-
-  setTimeout(() => {
-    model.traverse(function(obj){
-      if (obj.isMesh) {//判断是否是网格模型
-        console.log(new URL('./', import.meta.url))
-
-        const textureCube = new THREE.CubeTextureLoader()
-        .setPath(`${new URL('./env', import.meta.url).pathname}/`)
-        .load(['px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg']);
-
-        obj.material = new THREE.MeshStandardMaterial({
-          metalness: 1.0,//金属度属性
-          roughness: 0.8,//表面粗糙度
-          side: THREE.DoubleSide,
-          envMap: textureCube,
-          envMapIntensity: 0.8
-        })
-
-        // 金属材质
-        // obj.material = new THREE.MeshPhysicalMaterial({
-        //   metalness: 1.0,//金属度属性
-        //   roughness: 0.8,//表面粗糙度
-        //   side: THREE.DoubleSide,
-        //   envMap: textureCube,
-        //   envMapIntensity: 0.8,
-        //   clearcoat: 1.0,
-        //   color: 0xaabbcc,
-        //   clearcoatRoughness: 0.4,
-        //   transmission: 1.0,
-        //   // ior:1.5
-        // })
-
-        // 玻璃材质
-        // obj.material = new THREE.MeshPhysicalMaterial({
-        //   metalness: 0,// 玻璃非金属
-        //   roughness: 0,// 表面粗糙度
-        //   side: THREE.DoubleSide,
-        //   envMap: textureCube,
-        //   envMapIntensity: 0.8,
-        //   clearcoat: 1.0,
-        //   color: 0xaabbcc,
-        //   clearcoatRoughness: 0.4,
-        //   transmission: 0.6,
-        //   ior:1.5
-        // })
-      }
-    })
-  }, 100)
-  
-
-  scene.add(model)
-
-
-  // 往场景中添加物品
-  // 添加一个长方体
-  const geometry = new THREE.BoxGeometry( 0.5, 1.8, 0.5 );
-
-  // 此时需要给长方体添加一个外部材质
-  // 不受光照影响
-  // const material = new THREE.MeshBasicMaterial( {
-  //   color: 0x0000ff,
-  //   transparent: true, // 是否开启透明
-  //   opacity: 0.5, // 透明度 
-  // } );
 
   const material = new THREE.MeshLambertMaterial( {
-    color: 0x0000ff,
-    // transparent: true, // 是否开启透明
-    // opacity: 0.5, // 透明度 
-    // side: THREE.DoubleSide
+    color: 0xffffff,
+    side: THREE.DoubleSide
   } );
 
-  // threejs中的物品都是通过网格表示的
-  // mesh需要形状和外观
-  const mesh = new THREE.Mesh(geometry, material)
-  // 可以设置物体的位置
-  mesh.position.set(0, 0, 0)
+  // 创建射线对象Ray
+  const ray = new THREE.Ray()
+  // 设置射线起点
+  ray.origin = new THREE.Vector3(1, 0, 3)
+  // 或者
+  // ray.origin.set(1, 0, 3)
+  // 射线方向.direction
+  // direction值需要是单位向量
+  ray.direction = new THREE.Vector3(5, 0, 0).normalize();
 
-  // 在场景中添加物品
-  scene.add( mesh );
-  
+
+  // 看看是否有交叉
+  // 举个例子，三角形交叉 intersectTriangle
+  const p1 = new THREE.Vector3(100, 25, 0);
+  const p2 = new THREE.Vector3(100, -25, 25);
+  const p3 = new THREE.Vector3(100, -25, -25);
+
+  // 画出平面
+  // const shape = new THREE.Shape([p1, p2, p3]);
+  // const geometry = new THREE.ShapeGeometry(shape);
+
+  const geometry = new THREE.BufferGeometry()
+  geometry.setFromPoints([p1, p2, p3])
+
+  const mesh = new THREE.Mesh(geometry, material)
+  scene.add(mesh)
+
+  const geometry1 = new THREE.BoxGeometry(100, 100, 100)
+  const mesh1 = new THREE.Mesh(geometry1, material)
+  mesh1.position.set(0, 10, 0)
+  scene.add(mesh1)
+
+  const geometry2 = new THREE.SphereGeometry(50)
+  const mesh2 = new THREE.Mesh(geometry2, material.clone())
+  mesh2.position.set(200, 0, 0)
+  scene.add(mesh2)
+
+  // 画出射线
+  const raycaster = new THREE.Raycaster();
+  // 设置射线起点
+  raycaster.ray.origin = new THREE.Vector3(-100, 0, 0);
+  // 设置射线方向射线方向沿着x轴
+  raycaster.ray.direction = new THREE.Vector3(1, 0, 0);
+
+  // 射线发射拾取模型对象
+  const intersects = raycaster.intersectObjects([mesh1, mesh2]);
+  console.log("射线器返回的对象", intersects);
+
+  if (intersects.length > 0) {
+    // 选中模型的第一个模型，设置为红色
+    // intersects[0].object.material.color.set(0xff0000);
+  }
+
+
+  const point = new THREE.Vector3();//用来记录射线和三角形的交叉点
+  // `.intersectTriangle()`计算射线和三角形是否相交叉，相交返回交点，不相交返回null
+  const result = ray.intersectTriangle(p1,p2,p3,false,point);
+
+  console.log('交叉点坐标', point);
+  console.log('查看是否相交', result);
+
 
   // 添加辅助坐标系
   const axesHelper = new THREE.AxesHelper(200);
@@ -108,9 +92,8 @@ onMounted(() => {
 
   // 添加点光源
   const light = new THREE.PointLight( 0xffffff, 1, 10000, 0 );
-  light.position.set( 0, 10, 0);
+  light.position.set( 0, 500, 800);
   scene.add( light );
-  light.castShadow = true;
 
 
   /**
@@ -124,7 +107,7 @@ onMounted(() => {
   const camera = new THREE.PerspectiveCamera( 45, canvas.value.clientWidth / canvas.value.clientHeight, 1, 10000 );
   // const camera = new THREE.PerspectiveCamera( 90, canvas.value.clientWidth / canvas.value.clientHeight, 1, 10000 );
   // 设置相机的位置
-  camera.position.set(-1, 35, 28)
+  camera.position.set(300, 300, 300)
   // 设置相机拍照的视线方向
   // camera.lookAt(1000, 0, 1000)
   // 看向某一个物体的位置，指向某个网格模型
@@ -145,9 +128,34 @@ onMounted(() => {
   renderer.setSize(canvas.value.clientWidth, canvas.value.clientHeight)
   renderer.render(scene, camera)
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setClearColor(0x000000, 0.5)
-  renderer.setClearAlpha(0)
-  renderer.shadowMap.enabled = true; 
+  renderer.setClearColor(0x111111, 0.5)
+
+  renderer.domElement.addEventListener('click', function(event) {
+    console.log(1111, event)
+    // 计算点击位置
+    // .offsetY、.offsetX以canvas画布左上角为坐标原点,单位px
+    const px = event.offsetX;
+    const py = event.offsetY;
+    //屏幕坐标px、py转WebGL标准设备坐标x、y
+    //width、height表示canvas画布宽高度
+    const x = (px / canvas.value.clientWidth) * 2 - 1;
+    const y = -(py / canvas.value.clientHeight) * 2 + 1;
+
+    //创建一个射线投射器`Raycaster`
+    const raycaster = new THREE.Raycaster();
+    // 最重要的一个方法setFromCamera
+    // 其实就是相机到点击位置的一条射线
+    raycaster.setFromCamera(new THREE.Vector2(x, y), camera)
+
+    // 射线发射拾取模型对象
+    const intersects = raycaster.intersectObjects([mesh1, mesh2]);
+    console.log("射线器返回的对象", intersects);
+
+    if (intersects.length > 0) {
+      // 选中模型的第一个模型，设置为红色
+      intersects[0].object.material.color.set(0x00ff00);
+    }
+  })
 
   // 最后把渲染结果给渲染到页面上
   canvas.value.appendChild(renderer.domElement)
@@ -187,7 +195,6 @@ onMounted(() => {
     controls.update();
 
     renderer.render( scene, camera );
-
 
   }
   animate()

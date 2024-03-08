@@ -9,13 +9,17 @@
 
 <script setup>
   // 引入路由
-  import { useRouter } from 'vue-router'
+  import { useRouter, useRoute } from 'vue-router'
   import { ref } from 'vue'
   import routes from '../router/routes'
 
   const router = useRouter()
   
   const nowIndex = ref(0)
+
+  const curRoute = useRoute()
+
+  const { path } = curRoute
 
   const clickTab = (e, index) => {
     nowIndex.value = index
@@ -24,7 +28,10 @@
 
   let curRoutes = routes[1].children
   let id = 1
-  const tabList = curRoutes.map(item => {
+  const tabList = curRoutes.map((item, index) => {
+    if (path === item.path) {
+      nowIndex.value = index
+    }
     return {
       id: ++id, name: item.title, router: item.path, 
     }

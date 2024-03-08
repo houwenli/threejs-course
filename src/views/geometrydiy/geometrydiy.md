@@ -139,3 +139,94 @@ const pointsArr = CurvePath.getPoints(100);
 //读取坐标数据赋值给几何体顶点
 geometry.setFromPoints(pointsArr); 
 ```
+### ShapeGeometry
+
+有些时候已知一个多边形的外轮廓坐标，想通过这些外轮廓坐标生成一个多边形几何体平面，这时候你可以借助threejs提供的轮廓填充ShapeGeometry几何体实现
+
+```js
+// 五边形
+// 一组二维向量表示一个多边形轮廓坐标
+const pointsArr = [
+    new THREE.Vector2(-50, -50),
+    new THREE.Vector2(-60, 0),
+    new THREE.Vector2(0, 50),
+    new THREE.Vector2(60, 0),
+    new THREE.Vector2(50, -50),
+]
+
+// Shape表示一个平面多边形轮廓,参数是二维向量构成的数组pointsArr
+const shape = new THREE.Shape(pointsArr);
+
+const geometry = new THREE.ShapeGeometry(shape);
+```
+
+### ExtrudeGeometry
+拉伸几何体ExtrudeGeometry和上节课讲到的轮廓填充几何体ShapeGeometry一样，都是基于一个基础的平面轮廓Shape进行变换，生成一个几何体。
+
+![Alt text](image.png)
+
+可以由一个平面生成一个几何体
+
+```js
+// 一组二维向量表示一个多边形轮廓坐标
+const pointsArr = [
+  new THREE.Vector2(-50, -50), //多边形起点
+  new THREE.Vector2(-50, 50),
+  new THREE.Vector2(50, 50),
+  new THREE.Vector2(50, -50),
+]
+
+// Shape表示一个平面多边形轮廓,参数是二维向量构成的数组pointsArr
+const shape = new THREE.Shape(pointsArr);
+
+const geometry = new THREE.ExtrudeGeometry(shape, {
+  depth: 20, //拉伸长度
+  bevelThickness: 10, //倒角尺寸:拉伸方向
+  bevelSize: 5, //倒角尺寸:垂直拉伸方向
+  bevelSegments: 20, //倒圆角：倒角细分精度，默认3
+});
+```
+
+额外属性，可以控制连接位置
+- bevelThickness
+- bevelSize
+- bevelSegments
+
+#### 拉伸成一个曲线形状
+
+其实可以简单想象一个，不沿着直线拉伸是不是就能得到一个曲线形状的几何体呢
+
+![Alt text](image-1.png)
+
+### 自定义的Shape
+
+多边形轮廓Shape,是直接通过一组二维向量Vector2表示的xy点坐标创建，Shape的父类是Path,Path提供了直线、圆弧、贝塞尔、样条等绘制方法，Shape也会从父类是Path继承这些图形绘制方法。
+
+所以其实我们可以手动绘制shape，这个其实就是canvas的lineTo，moveTo等功能
+
+```js
+const shape = new THREE.Shape();
+shape.moveTo(10, 0)
+
+shape.lineTo(100, 0);
+shape.lineTo(100, 100)
+shape.lineTo(  10, 100)
+
+const geometry = new THREE.ShapeGeometry(shape);
+```
+
+#### 还可以给多边形挖洞
+
+```js
+const path1 = new THREE.Path();// 圆孔1
+path1.absarc(20, 20, 10);
+const path2 = new THREE.Path();// 圆孔2
+path2.absarc(80, 20, 10);
+const path3 = new THREE.Path();// 方形孔
+path3.moveTo(50, 50);
+path3.lineTo(80, 50);
+path3.lineTo(80, 80);
+path3.lineTo(50, 80);
+
+shape.holes.push(path1, path2,path3);
+```

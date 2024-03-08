@@ -17,6 +17,8 @@ import bezier from './bezier'
 import curvePath from './curvePath'
 import tube from './tube'
 import shape from './shape'
+import extrude from './extrude'
+import shapeDiy from './shape-diy'
 
 const canvas = ref(null);
 
@@ -39,6 +41,12 @@ onMounted(() => {
   scene.add(tube)
 
   scene.add(shape)
+
+  scene.add(extrude)
+
+  scene.add(shapeDiy)
+  
+
   
 
   // 添加辅助坐标系

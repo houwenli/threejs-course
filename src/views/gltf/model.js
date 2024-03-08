@@ -28,9 +28,51 @@ loader.load( new URL('./collision-world.glb', import.meta.url).href, function ( 
       
       // obj.material = obj.material.clone();
 
+
+      // 给模型上色
+      // 思路获取所有的顶点，给每个顶点颜色
+      const pos = obj.geometry.attributes.position
+      const count = pos.count
+
+      // 获取所有的y轴坐标，读取最高值和最低值，计算高度差
+      // 1. 计算模型y坐标高度差
+      const yArr = [];//顶点所有y坐标，也就是地形高度
+
+      for (let i = 0; i < count; i++) {
+        yArr.push(pos.getY(i));//获取顶点y坐标，也就是地形高度
+      }
+
+      yArr.sort();//数组元素排序，从小到大
+      const miny = yArr[0];//y最小值
+      const maxy = yArr[yArr.length - 1];//y最大值
+      const height = maxy - miny; // 高度差
+      
+      // 2. 计算每个顶点的颜色值
+      // 根据模型顶点高度设置渐变颜色
+      const colorsArr = [];
+      const c1 = new THREE.Color(0x234567);//模型顶点颜色
+      const c2 = new THREE.Color(0xff0000);//模型最低点颜色
+
+      for (let i = 0; i < count; i++) {
+        //当前高度和整体高度比值
+        const percent = (pos.getY(i) - miny) / height;
+        const c = c1.clone().lerp(c2, percent);//颜色插值计算
+        colorsArr.push(c.r, c.g, c.b); 
+      }
+
+      const colors = new Float32Array(colorsArr);
+      // 设置几何体attributes属性的颜色color属性
+      // obj.geometry.attributes.color = new THREE.BufferAttribute(colors, 3);
+
+      obj.castShadow = true
+
       obj.material = new THREE.MeshLambertMaterial({
         color:0xffffff,
+        side: THREE.DoubleSide,
+        // Mesh渲染山脉顶点颜色
+        // vertexColors:true,
       });
+
     }
   });
 }, function(xhr) {

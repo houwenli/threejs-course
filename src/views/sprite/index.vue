@@ -9,7 +9,6 @@ import { ref, onMounted } from 'vue'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 // 引入stats性能监视器
 import Stats from 'three/examples/jsm/libs/stats.module.js'
-import model from './model';
 
 const canvas = ref(null);
 
@@ -18,87 +17,49 @@ onMounted(() => {
    * 创建虚拟的3D场景
    */
   const scene = new THREE.Scene()
-  scene.background = new THREE.Color( 0x88ccee );
 
-  setTimeout(() => {
-    model.traverse(function(obj){
-      if (obj.isMesh) {//判断是否是网格模型
-        console.log(new URL('./', import.meta.url))
+  const assignSRGB = ( texture ) => {
 
-        const textureCube = new THREE.CubeTextureLoader()
-        .setPath(`${new URL('./env', import.meta.url).pathname}/`)
-        .load(['px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg']);
+    texture.colorSpace = THREE.SRGBColorSpace;
 
-        obj.material = new THREE.MeshStandardMaterial({
-          metalness: 1.0,//金属度属性
-          roughness: 0.8,//表面粗糙度
-          side: THREE.DoubleSide,
-          envMap: textureCube,
-          envMapIntensity: 0.8
-        })
+  };
 
-        // 金属材质
-        // obj.material = new THREE.MeshPhysicalMaterial({
-        //   metalness: 1.0,//金属度属性
-        //   roughness: 0.8,//表面粗糙度
-        //   side: THREE.DoubleSide,
-        //   envMap: textureCube,
-        //   envMapIntensity: 0.8,
-        //   clearcoat: 1.0,
-        //   color: 0xaabbcc,
-        //   clearcoatRoughness: 0.4,
-        //   transmission: 1.0,
-        //   // ior:1.5
-        // })
+  const texture = new THREE.TextureLoader().load(new URL('./snow/snowflake2.png', import.meta.url).href, assignSRGB);
+  const spriteMaterial = new THREE.SpriteMaterial({
+    // color:0x00ffff,//设置颜色
+    // rotation:Math.PI/4,//旋转精灵对象45度，弧度值
+    map: texture,
+    transparent: true
+  });
 
-        // 玻璃材质
-        // obj.material = new THREE.MeshPhysicalMaterial({
-        //   metalness: 0,// 玻璃非金属
-        //   roughness: 0,// 表面粗糙度
-        //   side: THREE.DoubleSide,
-        //   envMap: textureCube,
-        //   envMapIntensity: 0.8,
-        //   clearcoat: 1.0,
-        //   color: 0xaabbcc,
-        //   clearcoatRoughness: 0.4,
-        //   transmission: 0.6,
-        //   ior:1.5
-        // })
-      }
-    })
-  }, 100)
-  
+  const group = new THREE.Group()
 
-  scene.add(model)
+  for (let i = 0; i < 16000; i++) {
+    const sprite = new THREE.Sprite(spriteMaterial)
+    group.add(sprite);
+    const x = 1000 * (Math.random() - 0.5);
+    const y = 600 * Math.random();
+    const z = 600 * (Math.random() - 0.5);
+    sprite.position.set(x, y, z)
+  }
+
+  scene.add(group)
 
 
-  // 往场景中添加物品
-  // 添加一个长方体
-  const geometry = new THREE.BoxGeometry( 0.5, 1.8, 0.5 );
+  function loop() {
+    // loop()每次执行都会更新雨滴的位置，进而产生动画效果
+    group.children.forEach(sprite => {
+        // 雨滴的y坐标每次减1
+        sprite.position.y -= 1;
+        if (sprite.position.y < 0) {
+            // 如果雨滴落到地面，重置y，从新下落
+            sprite.position.y = 600;
+        }
+    });
+    requestAnimationFrame(loop);
+  }
 
-  // 此时需要给长方体添加一个外部材质
-  // 不受光照影响
-  // const material = new THREE.MeshBasicMaterial( {
-  //   color: 0x0000ff,
-  //   transparent: true, // 是否开启透明
-  //   opacity: 0.5, // 透明度 
-  // } );
-
-  const material = new THREE.MeshLambertMaterial( {
-    color: 0x0000ff,
-    // transparent: true, // 是否开启透明
-    // opacity: 0.5, // 透明度 
-    // side: THREE.DoubleSide
-  } );
-
-  // threejs中的物品都是通过网格表示的
-  // mesh需要形状和外观
-  const mesh = new THREE.Mesh(geometry, material)
-  // 可以设置物体的位置
-  mesh.position.set(0, 0, 0)
-
-  // 在场景中添加物品
-  scene.add( mesh );
+  loop()
   
 
   // 添加辅助坐标系
@@ -108,9 +69,8 @@ onMounted(() => {
 
   // 添加点光源
   const light = new THREE.PointLight( 0xffffff, 1, 10000, 0 );
-  light.position.set( 0, 10, 0);
+  light.position.set( 0, 500, 800);
   scene.add( light );
-  light.castShadow = true;
 
 
   /**
@@ -124,7 +84,7 @@ onMounted(() => {
   const camera = new THREE.PerspectiveCamera( 45, canvas.value.clientWidth / canvas.value.clientHeight, 1, 10000 );
   // const camera = new THREE.PerspectiveCamera( 90, canvas.value.clientWidth / canvas.value.clientHeight, 1, 10000 );
   // 设置相机的位置
-  camera.position.set(-1, 35, 28)
+  camera.position.set(300, 300, 300)
   // 设置相机拍照的视线方向
   // camera.lookAt(1000, 0, 1000)
   // 看向某一个物体的位置，指向某个网格模型
@@ -145,9 +105,7 @@ onMounted(() => {
   renderer.setSize(canvas.value.clientWidth, canvas.value.clientHeight)
   renderer.render(scene, camera)
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setClearColor(0x000000, 0.5)
-  renderer.setClearAlpha(0)
-  renderer.shadowMap.enabled = true; 
+  // renderer.setClearColor(0x111111, 0.5)
 
   // 最后把渲染结果给渲染到页面上
   canvas.value.appendChild(renderer.domElement)
@@ -187,7 +145,6 @@ onMounted(() => {
     controls.update();
 
     renderer.render( scene, camera );
-
 
   }
   animate()
