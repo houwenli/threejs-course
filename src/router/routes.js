@@ -149,6 +149,24 @@ const routes = [
         name: 'ray',
         title: '射线'
       },
+      {
+        path: '/keyframe',
+        component: () => import('../views/keyframe/index.vue'),
+        name: 'keyframe',
+        title: '关键帧动画'
+      },
+      {
+        path: '/bone',
+        component: () => import('../views/bone/index.vue'),
+        name: 'bone',
+        title: '骨骼动画'
+      },
+      {
+        path: '/boneExample',
+        component: () => import('../views/boneExample/index.vue'),
+        name: 'boneExample',
+        title: '骨骼动画示例'
+      },
     ]
   },
  

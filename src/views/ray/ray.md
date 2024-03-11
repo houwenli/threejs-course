@@ -71,3 +71,7 @@ addEventListener('click',function(event){
     const y = -(py / height) * 2 + 1;
 })
 ```
+
+## setFromCamera，射线拾取最重要的方法
+
+把鼠标单击位置坐标和相机作为.setFromCamera()方法的参数，.setFromCamera()就会计算射线投射器Raycaster的射线属性.ray,形象点说就是在点击位置创建一条射线，用来选中拾取模型对象。
