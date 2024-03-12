@@ -111,3 +111,11 @@ new THREE.MeshPhysicalMaterial({
     ior:1.5,//折射率
 })
 ```
+
+## 环境贴图的映射模式
+
+- THREE.CubeReflectionMapping：该映射模式将环境贴图作为一个立方体贴图，将六个面分别映射到对应的立方体面上，以模拟立方体环境映射和反射效果。
+- THREE.CubeRefractionMapping：该映射模式与 THREE.CubeReflectionMapping 类似，但是它模拟的是折射效果，即将环境贴图中的物体看作透明的，经过物体的折射后反射到表面上。
+- THREE.EquirectangularReflectionMapping：该映射模式将环境贴图作为一个全景图片，将图片映射到球体或半球体上，以模拟球形环境映射和反射效果。
+- THREE.EquirectangularRefractionMapping：该映射模式与 THREE.EquirectangularReflectionMapping 类似，但是模拟的是折射效果，即将环境贴图中的物体看作透明的，经过物体的折射后反射到表面上。
+- THREE.SphericalReflectionMapping：该映射模式将环境贴图映射到一个球形贴图上，以模拟球形环境映射和反射效果。与 THREE.EquirectangularReflectionMapping 相比，该映射模式需要使用一个球形贴图，因此对图像质量的要求较高，但可以实现更加真实的球形反射效果。

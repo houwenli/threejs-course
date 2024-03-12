@@ -167,6 +167,24 @@ const routes = [
         name: 'boneExample',
         title: '骨骼动画示例'
       },
+      {
+        path: '/stereoExample',
+        component: () => import('../views/stereoExample/index.vue'),
+        name: 'stereoExample',
+        title: '立体效果'
+      },
+      {
+        path: '/ocean',
+        component: () => import('../views/ocean/index.vue'),
+        name: 'ocean',
+        title: '天空与大海'
+      },
+      {
+        path: '/raycasterExample',
+        component: () => import('../views/raycasterExample/index.vue'),
+        name: 'raycasterExample',
+        title: '射线示例'
+      },
     ]
   },
  

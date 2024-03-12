@@ -8,7 +8,7 @@ import { ref, reactive, onMounted } from 'vue'
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
-import { CCDIKSolver, CCDIKHelper }from 'three/examples/jsm/controls/TransformControls.js';
+import { CCDIKSolver, CCDIKHelper } from 'three/examples/jsm/animation/CCDIKSolver.js';
 // 引入stats性能监视器
 import Stats from 'three/examples/jsm/libs/stats.module.js'
 import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
@@ -25,6 +25,7 @@ loader.setDRACOLoader( dracoLoader );
 
 const canvas = ref(null);
 const OOI = reactive({});
+let IKSolver = reactive({});
 let mirrorSphereCamera = reactive({});
 let transformControls = reactive({});
 
@@ -101,6 +102,29 @@ onMounted(async () => {
   scene.add( transformControls );
   transformControls.addEventListener( 'mouseDown', () => controls.enabled = false );
 	transformControls.addEventListener( 'mouseUp', () => controls.enabled = true );
+
+  OOI.kira.add( OOI.kira.skeleton.bones[ 0 ] );
+  const iks = [
+    {
+      target: 22, // "target_hand_l"
+      effector: 6, // "hand_l"
+      links: [
+        {
+          index: 5, // "lowerarm_l"
+          rotationMin: new THREE.Vector3( 1.2, - 1.8, - .4 ),
+          rotationMax: new THREE.Vector3( 1.7, - 1.1, .3 )
+        },
+        {
+          index: 4, // "Upperarm_l"
+          rotationMin: new THREE.Vector3( 0.1, - 0.7, - 1.8 ),
+          rotationMax: new THREE.Vector3( 1.1, 0, - 1.4 )
+        },
+      ],
+    }
+  ];
+  IKSolver = new CCDIKSolver( OOI.kira, iks );
+  const ccdikhelper = new CCDIKHelper( OOI.kira, iks, 0.01 );
+  scene.add( ccdikhelper );
 
 
   function animate() {
